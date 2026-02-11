@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Python virtual environment
+venv/
+
+# Claude Code settings
+.claude/
+
+# Media files (user data)
+*.mp3
+*.mp4
+*.mov
+*.m4a
+*.wav
+*.ogg
+*.flac
+*.avi
+*.mkv
+
+# Transcription outputs (generated)
+*.srt
+
+# Temporary files
+/tmp/
+*.tmp
