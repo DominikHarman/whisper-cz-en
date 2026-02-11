@@ -5,12 +5,13 @@ Local audio/video transcription using whisper.cpp on macOS (Apple Silicon, Metal
 ## Project Structure
 
 ```
-whisperproject/
+whisper/
+├── .gitignore             # Ignores media, venv, .DS_Store, .claude/
 ├── transcribe.sh          # English transcription script
 ├── prepsat.sh             # Czech transcription script
 ├── README.md              # User-facing docs (Czech)
 ├── CLAUDE.md              # This file
-├── whisper.cpp/           # Git submodule — whisper.cpp project
+├── whisper.cpp/           # Git submodule — whisper.cpp v1.8.3
 │   ├── build/bin/whisper-cli
 │   └── models/
 │       ├── ggml-large-v3.bin          # 3.1 GB — primary model for both scripts
@@ -72,6 +73,23 @@ Whisper hallucinates repetitive text during silence or unclear audio. Three coun
 
 - When modifying whisper-cli flags, check `whisper-cli --help` — the flag set varies by whisper.cpp version
 - Model files are large (3.1 GB) — not tracked in git, must be downloaded via `whisper.cpp/models/download-ggml-model.sh`
-- VAD model downloaded via `whisper.cpp/models/download-vad-model.sh`
+- VAD model downloaded via `whisper.cpp/models/download-vad-model.sh silero-v6.2.0`
 - Media files (`.mp3`, `.mp4`, `.mov`, `.m4a`) in the project root are user data, not project assets
 - `.md` and `.txt` files in the root (other than README/CLAUDE) are transcription outputs
+
+## Updating whisper.cpp Submodule
+
+```bash
+cd whisper.cpp
+git fetch origin
+git checkout v1.X.X          # desired tag
+cd ..
+# Rebuild
+cmake -B whisper.cpp/build -S whisper.cpp -DGGML_METAL=ON
+cmake --build whisper.cpp/build --config Release -j$(sysctl -n hw.ncpu)
+# Commit submodule update
+git add whisper.cpp
+git commit -m "Update whisper.cpp to vX.X.X"
+```
+
+After updating, check `whisper-cli --help` for any flag changes and update scripts if needed.

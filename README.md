@@ -51,15 +51,20 @@ brew install cmake ffmpeg
 ### 3. Klonovani projektu
 
 ```bash
-git clone <url-repozitare> whisperproject
-cd whisperproject
+git clone --recursive git@github.com:faborsky/whisper.git
+cd whisper
 ```
+
+> Pokud uz jsi klonoval bez `--recursive`:
+> ```bash
+> git submodule init && git submodule update
+> ```
 
 ### 4. Kompilace whisper.cpp
 
 ```bash
 cd whisper.cpp
-cmake -B build
+cmake -B build -DGGML_METAL=ON
 cmake --build build -j --config Release
 cd ..
 ```
@@ -71,8 +76,8 @@ cd ..
 cd whisper.cpp/models
 bash download-ggml-model.sh large-v3
 
-# Silero VAD (~885 KB)
-bash download-vad-model.sh
+# Silero VAD v6.2.0 (~865 KB)
+bash download-vad-model.sh silero-v6.2.0
 cd ../..
 ```
 
@@ -100,7 +105,7 @@ cd whisper.cpp && cmake -B build && cmake --build build -j --config Release
 ### "Model nenalezen"
 
 ```bash
-cd whisper.cpp/models && bash download-ggml-model.sh large-v3 && bash download-vad-model.sh
+cd whisper.cpp/models && bash download-ggml-model.sh large-v3 && bash download-vad-model.sh silero-v6.2.0
 ```
 
 ### "ffmpeg: command not found"
