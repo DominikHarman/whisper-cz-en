@@ -21,7 +21,7 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WHISPER_BIN="$SCRIPT_DIR/whisper.cpp/build/bin/whisper-cli"
 MODEL="$SCRIPT_DIR/whisper.cpp/models/ggml-large-v3.bin"
-VAD_MODEL="$SCRIPT_DIR/whisper.cpp/models/ggml-silero-v5.1.2.bin"
+VAD_MODEL="$SCRIPT_DIR/whisper.cpp/models/ggml-silero-v6.2.0.bin"
 
 # ── Funkce ──
 print_status() { echo -e "${BLUE}▶ $1${NC}"; }

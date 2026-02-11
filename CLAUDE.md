@@ -14,7 +14,7 @@ whisperproject/
 │   ├── build/bin/whisper-cli
 │   └── models/
 │       ├── ggml-large-v3.bin          # 3.1 GB — primary model for both scripts
-│       └── ggml-silero-v5.1.2.bin     # 885 KB — VAD model
+│       └── ggml-silero-v6.2.0.bin     # 865 KB — VAD model
 └── venv/                  # Python venv (unused by scripts, kept for whisper.cpp tooling)
 ```
 

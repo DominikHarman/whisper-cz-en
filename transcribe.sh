@@ -15,7 +15,7 @@ CHUNK_SECONDS=$((CHUNK_MINUTES * 60))
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WHISPER_BIN="$SCRIPT_DIR/whisper.cpp/build/bin/whisper-cli"
 MODEL="$SCRIPT_DIR/whisper.cpp/models/ggml-large-v3.bin"
-VAD_MODEL="$SCRIPT_DIR/whisper.cpp/models/ggml-silero-v5.1.2.bin"
+VAD_MODEL="$SCRIPT_DIR/whisper.cpp/models/ggml-silero-v6.2.0.bin"
 
 show_help() {
     echo "Usage: ./transcribe.sh [options] <audio_or_video_file>"
