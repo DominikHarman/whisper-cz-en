@@ -2,7 +2,7 @@
 
 # Whisper English Transcription Script (Large V3 + VAD + Chunking)
 # Splits long audio into chunks to prevent hallucination loops
-# Outputs both plaintext (.txt) and subtitles (.srt)
+# Output: .txt (plaintext) + .srt (subtitles)
 # Usage: ./transcribe.sh [--txt|--srt] <audio_or_video_file>
 
 set -e
@@ -11,11 +11,22 @@ set -e
 CHUNK_MINUTES=5
 CHUNK_SECONDS=$((CHUNK_MINUTES * 60))
 
+# ── Colors ──
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
 # ── Paths ──
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WHISPER_BIN="$SCRIPT_DIR/whisper.cpp/build/bin/whisper-cli"
 MODEL="$SCRIPT_DIR/whisper.cpp/models/ggml-large-v3.bin"
 VAD_MODEL="$SCRIPT_DIR/whisper.cpp/models/ggml-silero-v6.2.0.bin"
+
+# ── Functions ──
+print_status() { echo -e "${BLUE}▶ $1${NC}"; }
+print_success() { echo -e "${GREEN}✓ $1${NC}"; }
+print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
 
 show_help() {
     echo "Usage: ./transcribe.sh [options] <audio_or_video_file>"
@@ -71,6 +82,16 @@ if [ ! -f "$INPUT_FILE" ]; then
     exit 1
 fi
 
+if [ ! -f "$WHISPER_BIN" ]; then
+    echo "Error: whisper-cli not found at $WHISPER_BIN"
+    exit 1
+fi
+
+if [ ! -f "$MODEL" ]; then
+    echo "Error: Model not found at $MODEL"
+    exit 1
+fi
+
 # ── Filenames ──
 FILENAME=$(basename "$INPUT_FILE")
 BASENAME="${FILENAME%.*}"
@@ -86,27 +107,28 @@ else
     OUTPUT_DESC="only .srt"
 fi
 
-echo "========================================"
-echo "English Transcription: $FILENAME"
-echo "Model: Large V3 + Silero VAD"
-echo "Chunk size: ${CHUNK_MINUTES} minutes"
-echo "Output: $OUTPUT_DESC"
-echo "========================================"
+echo ""
+echo -e "${GREEN}════════════════════════════════════════════════════════${NC}"
+print_status "English transcription: $FILENAME"
+print_status "Model: Large V3 + Silero VAD"
+print_status "Chunk size: ${CHUNK_MINUTES} minutes"
+print_status "Output: $OUTPUT_DESC"
+echo -e "${GREEN}════════════════════════════════════════════════════════${NC}"
 echo ""
 
 # ── Phase 1: Convert to WAV ──
-echo "Phase 1/3: Converting to WAV (16kHz mono)..."
+print_status "Phase 1/3: Converting to WAV (16kHz mono)..."
 ffmpeg -i "$INPUT_FILE" -acodec pcm_s16le -ar 16000 -ac 1 "$TEMP_WAV" -loglevel error -y
-echo "Conversion done."
+print_success "Conversion done"
 echo ""
 
 # ── Phase 2: Split into chunks ──
-echo "Phase 2/3: Splitting audio into ${CHUNK_MINUTES}-minute chunks..."
+print_status "Phase 2/3: Splitting audio into ${CHUNK_MINUTES}-minute chunks..."
 
 DURATION=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$TEMP_WAV" | cut -d. -f1)
 NUM_CHUNKS=$(( (DURATION + CHUNK_SECONDS - 1) / CHUNK_SECONDS ))
 
-echo "Total duration: $((DURATION / 60))m $((DURATION % 60))s → $NUM_CHUNKS chunks"
+print_status "Total duration: $((DURATION / 60))m $((DURATION % 60))s → $NUM_CHUNKS chunks"
 
 rm -rf "$CHUNK_DIR"
 mkdir -p "$CHUNK_DIR"
@@ -117,11 +139,11 @@ for i in $(seq 0 $((NUM_CHUNKS - 1))); do
     ffmpeg -i "$TEMP_WAV" -ss "$START" -t "$CHUNK_SECONDS" -acodec pcm_s16le -ar 16000 -ac 1 "$CHUNK_FILE" -loglevel error -y
 done
 
-echo "Split done: $NUM_CHUNKS chunks created."
+print_success "Split done: $NUM_CHUNKS chunks"
 echo ""
 
 # ── Phase 3: Transcribe each chunk ──
-echo "Phase 3/3: Transcribing chunks..."
+print_status "Phase 3/3: Transcribing chunks..."
 echo ""
 
 # Prepare output files
@@ -136,7 +158,7 @@ for i in $(seq 0 $((NUM_CHUNKS - 1))); do
     CHUNK_OUT="$CHUNK_DIR/chunk_$(printf '%03d' $i)"
     OFFSET_SECONDS=$((i * CHUNK_SECONDS))
 
-    echo "  [$CHUNK_NUM/$NUM_CHUNKS] Transcribing (offset ${OFFSET_SECONDS}s)..." >&2
+    print_status "  [$CHUNK_NUM/$NUM_CHUNKS] Transcribing (offset ${OFFSET_SECONDS}s)..." >&2
 
     "$WHISPER_BIN" \
         -m "$MODEL" \
@@ -155,7 +177,7 @@ for i in $(seq 0 $((NUM_CHUNKS - 1))); do
         -mc 0 \
         --suppress-nst \
         -np >/dev/null 2>&1 || {
-            echo "  WARNING: Chunk $CHUNK_NUM had an error, skipping..." >&2
+            print_warning "  Chunk $CHUNK_NUM failed, skipping..." >&2
             continue
         }
 
@@ -191,13 +213,13 @@ for i in $(seq 0 $((NUM_CHUNKS - 1))); do
             fi
         done < "${CHUNK_OUT}.srt"
     fi
-done > /tmp/${BASENAME}_srt_tmp.txt
+done > "/tmp/${BASENAME}_srt_tmp.txt"
 
 # Move SRT to final location (or discard tmp)
 if [ "$OUTPUT_SRT" = true ]; then
-    mv /tmp/${BASENAME}_srt_tmp.txt "${BASENAME}.srt"
+    mv "/tmp/${BASENAME}_srt_tmp.txt" "${BASENAME}.srt"
 else
-    rm -f /tmp/${BASENAME}_srt_tmp.txt
+    rm -f "/tmp/${BASENAME}_srt_tmp.txt"
 fi
 
 # ── Cleanup ──
@@ -205,12 +227,15 @@ rm -f "$TEMP_WAV"
 rm -rf "$CHUNK_DIR"
 
 echo ""
-echo "========================================"
-echo "Done! Output files:"
+echo -e "${GREEN}════════════════════════════════════════════════════════${NC}"
+print_success "Done!"
+echo -e "${GREEN}════════════════════════════════════════════════════════${NC}"
+echo ""
+echo "Output files:"
 if [ "$OUTPUT_TXT" = true ]; then
     echo "  Plaintext: ${BASENAME}.txt"
 fi
 if [ "$OUTPUT_SRT" = true ]; then
     echo "  Subtitles: ${BASENAME}.srt"
 fi
-echo "========================================"
+echo ""

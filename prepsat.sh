@@ -213,13 +213,13 @@ for i in $(seq 0 $((NUM_CHUNKS - 1))); do
             fi
         done < "${CHUNK_OUT}.srt"
     fi
-done > /tmp/${BASENAME}_srt_tmp.txt
+done > "/tmp/${BASENAME}_srt_tmp.txt"
 
 # Presunout SRT na misto (nebo smazat tmp)
 if [ "$OUTPUT_SRT" = true ]; then
-    mv /tmp/${BASENAME}_srt_tmp.txt "${BASENAME}.srt"
+    mv "/tmp/${BASENAME}_srt_tmp.txt" "${BASENAME}.srt"
 else
-    rm -f /tmp/${BASENAME}_srt_tmp.txt
+    rm -f "/tmp/${BASENAME}_srt_tmp.txt"
 fi
 
 # ── Vycisteni ──
