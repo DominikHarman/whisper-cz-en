@@ -173,7 +173,7 @@ The scripts handle this automatically via chunking and VAD. If it still occurs, 
 
 ## About
 
-Built by [Jindrich Faborsky](https://www.linkedin.com/in/faborsky/) for personal use and as a learning resource.
+Built by [Jindrich Faborsky](https://www.faborsky.com) for personal use and as a learning resource.
 
 Used in:
 - **[Vibe Coding for Marketers](https://vibecodingformarketers.com)** — hands-on course teaching marketers to build with AI (podcast automation lesson)
