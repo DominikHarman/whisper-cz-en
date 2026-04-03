@@ -1,6 +1,6 @@
-# Whisper CZ/EN — Project Context
+# Whisper CZ/EN/SK — Project Context
 
-Local audio/video transcription using whisper.cpp on macOS (Apple Silicon, Metal GPU). Two scripts: Czech (`prepsat.sh`) and English (`transcribe.sh`).
+Local audio/video transcription using whisper.cpp on macOS (Apple Silicon, Metal GPU). Three scripts: Czech (`prepsat.sh`), English (`transcribe.sh`), and Slovak (`prepisat.sh`).
 
 ## Project Structure
 
@@ -8,6 +8,7 @@ Local audio/video transcription using whisper.cpp on macOS (Apple Silicon, Metal
 whisper-cz-en/
 ├── transcribe.sh          # English transcription script
 ├── prepsat.sh             # Czech transcription script
+├── prepisat.sh            # Slovak transcription script
 ├── README.md              # Public documentation
 ├── CLAUDE.md              # This file — project context for AI agents
 ├── LICENSE                # MIT license
@@ -21,7 +22,7 @@ whisper-cz-en/
 
 ## Scripts
 
-Both scripts share identical architecture — only language and output extension differ.
+All three scripts share identical architecture — only language flag and UI text differ.
 
 ### `transcribe.sh` (English)
 
@@ -35,9 +36,16 @@ Both scripts share identical architecture — only language and output extension
 - Language flag: `-l cs`
 - Output: `.md` + `.srt` (default both, `--md` or `--srt` for single)
 
+### `prepisat.sh` (Slovak)
+
+- Usage: `./prepisat.sh [--md|--srt] <file>`
+- Language flag: `-l sk`
+- Output: `.md` + `.srt` (default both, `--md` or `--srt` for single)
+- UI text in proper Slovak (not Czech)
+
 ## Processing Pipeline
 
-Both scripts follow the same 3-phase pipeline:
+All scripts follow the same 3-phase pipeline:
 
 1. **Convert** — ffmpeg converts input to WAV (16kHz, mono, PCM s16le)
 2. **Split** — Audio is split into 5-minute chunks (configurable via `CHUNK_MINUTES`)
