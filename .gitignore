@@ -28,6 +28,9 @@ venv/
 mihal_test_5min.md
 Casual tón.md
 
+# Transcripts output directory
+transcripts/
+
 # Temporary files
 /tmp/
 *.tmp
